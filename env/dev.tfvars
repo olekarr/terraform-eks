@@ -14,3 +14,5 @@ tags = {
   Environment = "dev"
   Owner       = "ravi"
 }
+
+cluster_version = "1.29"
