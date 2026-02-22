@@ -25,3 +25,25 @@ module "eks" {
 
   tags = var.tags
 }
+
+module "nodegroups" {
+  source = "./modules/nodegroups"
+
+  name         = var.name
+  cluster_name = module.eks.cluster_name
+
+  # For learning & no NAT cost:
+  subnet_ids = module.vpc.public_subnet_ids
+  # If using private subnets with NAT:
+  # subnet_ids = module.vpc.private_subnet_ids
+
+  instance_types = ["t3.medium"]
+
+  desired_size = 2
+  min_size     = 1
+  max_size     = 3
+
+  tags = var.tags
+
+  depends_on = [module.eks]
+}
