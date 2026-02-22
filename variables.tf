@@ -39,3 +39,9 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "cluster_version" {
+  description = "EKS Kubernetes version"
+  type        = string
+  default     = "1.29"
+}
