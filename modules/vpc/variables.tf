@@ -9,28 +9,28 @@ variable "vpc_cidr" {
 }
 
 variable "azs" {
-  description = "List of availability zones to use (e.g., [\"ap-south-1a\", \"ap-south-1b\"])"
+  description = "List of availability zones"
   type        = list(string)
 }
 
 variable "public_subnet_cidrs" {
-  description = "CIDRs for public subnets (must match azs length)"
+  description = "CIDRs for public subnets"
   type        = list(string)
 }
 
 variable "private_subnet_cidrs" {
-  description = "CIDRs for private subnets (must match azs length)"
+  description = "CIDRs for private subnets"
   type        = list(string)
 }
 
 variable "enable_nat_gateway" {
-  description = "Enable NAT Gateway for private subnets (costs money)"
+  description = "Enable NAT Gateway for private subnets"
   type        = bool
   default     = false
 }
 
 variable "tags" {
-  description = "Extra tags to apply to resources"
+  description = "Common tags passed from root locals"
   type        = map(string)
   default     = {}
 }

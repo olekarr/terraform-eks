@@ -1,19 +1,6 @@
-locals {
-  common_tags = merge(
-    {
-      Name      = var.name
-      ManagedBy = "terraform"
-      Component = "nodegroup"
-    },
-    var.tags
-  )
-}
-
-# IAM role for nodes
 data "aws_iam_policy_document" "node_assume_role" {
   statement {
-    effect = "Allow"
-
+    effect  = "Allow"
     actions = ["sts:AssumeRole"]
 
     principals {
@@ -26,10 +13,9 @@ data "aws_iam_policy_document" "node_assume_role" {
 resource "aws_iam_role" "node" {
   name               = "${var.name}-eks-node-role"
   assume_role_policy = data.aws_iam_policy_document.node_assume_role.json
-  tags               = local.common_tags
+  tags               = var.tags
 }
 
-# Required AWS managed policies
 resource "aws_iam_role_policy_attachment" "worker_node_policy" {
   role       = aws_iam_role.node.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
@@ -45,7 +31,6 @@ resource "aws_iam_role_policy_attachment" "container_registry" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# Managed node group
 resource "aws_eks_node_group" "this" {
   cluster_name    = var.cluster_name
   node_group_name = "${var.name}-nodegroup"
@@ -61,7 +46,7 @@ resource "aws_eks_node_group" "this" {
     max_size     = var.max_size
   }
 
-  tags = local.common_tags
+  tags = var.tags
 
   depends_on = [
     aws_iam_role_policy_attachment.worker_node_policy,

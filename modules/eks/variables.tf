@@ -4,12 +4,12 @@ variable "name" {
 }
 
 variable "cluster_version" {
-  description = "EKS Kubernetes version (e.g., 1.29)"
+  description = "EKS Kubernetes version"
   type        = string
 }
 
 variable "subnet_ids" {
-  description = "Subnet IDs for EKS cluster networking (typically private subnets)"
+  description = "Subnet IDs for EKS cluster networking"
   type        = list(string)
 }
 
@@ -37,7 +37,7 @@ variable "enabled_cluster_log_types" {
 }
 
 variable "tags" {
-  description = "Extra tags"
+  description = "Common tags passed from root"
   type        = map(string)
   default     = {}
 }
