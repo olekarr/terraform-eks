@@ -1,72 +1,52 @@
-locals {
-  common_tags = merge(
-    {
-      Name      = var.name
-      ManagedBy = "terraform"
-      Component = "vpc"
-    },
-    var.tags
-  )
-}
-
 resource "aws_vpc" "this" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags = merge(local.common_tags, { Name = "${var.name}-vpc" })
+  tags = merge(var.tags, { Name = "${var.name}-vpc", Component = "vpc" })
 }
 
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
-  tags   = merge(local.common_tags, { Name = "${var.name}-igw" })
+  tags   = merge(var.tags, { Name = "${var.name}-igw", Component = "vpc" })
 }
 
-# Public subnets
 resource "aws_subnet" "public" {
   for_each = {
-    for idx, az in var.azs :
-    az => {
-      cidr = var.public_subnet_cidrs[idx]
-      az   = az
-    }
+    for idx, az in var.azs : az => var.public_subnet_cidrs[idx]
   }
 
   vpc_id                  = aws_vpc.this.id
-  cidr_block              = each.value.cidr
-  availability_zone       = each.value.az
+  cidr_block              = each.value
+  availability_zone       = each.key
   map_public_ip_on_launch = true
 
-  tags = merge(local.common_tags, {
-    Name = "${var.name}-public-${each.value.az}"
-    Tier = "public"
+  tags = merge(var.tags, {
+    Name      = "${var.name}-public-${each.key}"
+    Tier      = "public"
+    Component = "vpc"
   })
 }
 
-# Private subnets
 resource "aws_subnet" "private" {
   for_each = {
-    for idx, az in var.azs :
-    az => {
-      cidr = var.private_subnet_cidrs[idx]
-      az   = az
-    }
+    for idx, az in var.azs : az => var.private_subnet_cidrs[idx]
   }
 
   vpc_id            = aws_vpc.this.id
-  cidr_block        = each.value.cidr
-  availability_zone = each.value.az
+  cidr_block        = each.value
+  availability_zone = each.key
 
-  tags = merge(local.common_tags, {
-    Name = "${var.name}-private-${each.value.az}"
-    Tier = "private"
+  tags = merge(var.tags, {
+    Name      = "${var.name}-private-${each.key}"
+    Tier      = "private"
+    Component = "vpc"
   })
 }
 
-# Public route table + route to IGW
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.this.id
-  tags   = merge(local.common_tags, { Name = "${var.name}-rt-public" })
+  tags   = merge(var.tags, { Name = "${var.name}-rt-public" })
 }
 
 resource "aws_route" "public_internet" {
@@ -81,11 +61,10 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# NAT Gateway (optional)
 resource "aws_eip" "nat" {
   count  = var.enable_nat_gateway ? 1 : 0
   domain = "vpc"
-  tags   = merge(local.common_tags, { Name = "${var.name}-eip-nat" })
+  tags   = merge(var.tags, { Name = "${var.name}-eip-nat" })
 }
 
 resource "aws_nat_gateway" "this" {
@@ -93,15 +72,14 @@ resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.nat[0].id
   subnet_id     = values(aws_subnet.public)[0].id
 
-  tags = merge(local.common_tags, { Name = "${var.name}-nat" })
+  tags = merge(var.tags, { Name = "${var.name}-nat" })
 
   depends_on = [aws_internet_gateway.this]
 }
 
-# Private route table (if NAT enabled, route via NAT; otherwise no default route)
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this.id
-  tags   = merge(local.common_tags, { Name = "${var.name}-rt-private" })
+  tags   = merge(var.tags, { Name = "${var.name}-rt-private" })
 }
 
 resource "aws_route" "private_to_nat" {
@@ -117,14 +95,12 @@ resource "aws_route_table_association" "private" {
   route_table_id = aws_route_table.private.id
 }
 
-# Baseline security group (you can tighten later)
 resource "aws_security_group" "base" {
   name        = "${var.name}-base-sg"
   description = "Baseline security group for the VPC"
   vpc_id      = aws_vpc.this.id
 
   egress {
-    description      = "Allow all outbound"
     from_port        = 0
     to_port          = 0
     protocol         = "-1"
@@ -132,5 +108,5 @@ resource "aws_security_group" "base" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = merge(local.common_tags, { Name = "${var.name}-base-sg" })
+  tags = merge(var.tags, { Name = "${var.name}-base-sg" })
 }

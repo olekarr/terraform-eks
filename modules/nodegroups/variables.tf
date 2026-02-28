@@ -1,5 +1,5 @@
 variable "name" {
-  description = "Name prefix for node group"
+  description = "Name prefix for node group resources"
   type        = string
 }
 
@@ -9,12 +9,12 @@ variable "cluster_name" {
 }
 
 variable "subnet_ids" {
-  description = "Subnets where nodes will be created"
+  description = "Subnets where nodes will be deployed"
   type        = list(string)
 }
 
 variable "instance_types" {
-  description = "Instance types for node group"
+  description = "EC2 instance types for the nodes"
   type        = list(string)
   default     = ["t3.medium"]
 }
@@ -41,6 +41,7 @@ variable "disk_size" {
 }
 
 variable "tags" {
-  type    = map(string)
-  default = {}
+  description = "Common tags passed from root"
+  type        = map(string)
+  default     = {}
 }

@@ -13,11 +13,6 @@ output "private_subnet_ids" {
   description = "Private subnet IDs"
 }
 
-output "internet_gateway_id" {
-  value       = aws_internet_gateway.this.id
-  description = "Internet Gateway ID"
-}
-
 output "base_security_group_id" {
   value       = aws_security_group.base.id
   description = "Baseline security group ID"

@@ -1,47 +1,47 @@
 variable "aws_region" {
-  description = "AWS region to deploy resources into"
+  description = "AWS region for deployment"
   type        = string
 }
 
 variable "name" {
-  description = "Name prefix for the stack"
+  description = "Project name prefix"
   type        = string
 }
 
 variable "vpc_cidr" {
-  description = "VPC CIDR"
+  description = "CIDR block for the VPC"
   type        = string
 }
 
 variable "azs" {
-  description = "AZs to use"
+  description = "Availability zones"
   type        = list(string)
 }
 
 variable "public_subnet_cidrs" {
-  description = "Public subnet CIDRs"
+  description = "Public subnet CIDR list"
   type        = list(string)
 }
 
 variable "private_subnet_cidrs" {
-  description = "Private subnet CIDRs"
+  description = "Private subnet CIDR list"
   type        = list(string)
 }
 
 variable "enable_nat_gateway" {
-  description = "Enable NAT (costs money)"
+  description = "Boolean to enable/disable NAT Gateway"
   type        = bool
   default     = false
-}
-
-variable "tags" {
-  description = "Extra tags"
-  type        = map(string)
-  default     = {}
 }
 
 variable "cluster_version" {
   description = "EKS Kubernetes version"
   type        = string
   default     = "1.29"
+}
+
+variable "tags" {
+  description = "Additional custom tags"
+  type        = map(string)
+  default     = {}
 }

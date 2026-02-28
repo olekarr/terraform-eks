@@ -1,14 +1,3 @@
-locals {
-  common_tags = merge(
-    {
-      Name      = var.name
-      ManagedBy = "terraform"
-      Component = "eks"
-    },
-    var.tags
-  )
-}
-
 data "aws_iam_policy_document" "eks_cluster_assume_role" {
   statement {
     effect  = "Allow"
@@ -24,7 +13,7 @@ data "aws_iam_policy_document" "eks_cluster_assume_role" {
 resource "aws_iam_role" "cluster" {
   name               = "${var.name}-eks-cluster-role"
   assume_role_policy = data.aws_iam_policy_document.eks_cluster_assume_role.json
-  tags               = local.common_tags
+  tags               = var.tags
 }
 
 resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
@@ -50,7 +39,7 @@ resource "aws_eks_cluster" "this" {
 
   enabled_cluster_log_types = var.enabled_cluster_log_types
 
-  tags = local.common_tags
+  tags = var.tags
 
   depends_on = [
     aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
@@ -58,7 +47,6 @@ resource "aws_eks_cluster" "this" {
   ]
 }
 
-# OIDC provider for IRSA (useful later for addons like AWS Load Balancer Controller)
 data "tls_certificate" "oidc" {
   url = aws_eks_cluster.this.identity[0].oidc[0].issuer
 }
@@ -70,5 +58,5 @@ resource "aws_iam_openid_connect_provider" "this" {
 
   thumbprint_list = [data.tls_certificate.oidc.certificates[0].sha1_fingerprint]
 
-  tags = local.common_tags
+  tags = var.tags
 }
