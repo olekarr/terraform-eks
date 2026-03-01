@@ -16,12 +16,12 @@ variable "subnet_ids" {
 variable "instance_types" {
   description = "EC2 instance types for the nodes"
   type        = list(string)
-  default     = ["t3.medium"]
+  default     = ["t3.small"] # Updated from t3.medium to t3.small
 }
 
 variable "desired_size" {
   type    = number
-  default = 2
+  default = 1 # Updated to 1 to minimize initial costs
 }
 
 variable "min_size" {
@@ -31,7 +31,7 @@ variable "min_size" {
 
 variable "max_size" {
   type    = number
-  default = 3
+  default = 2 # Reduced for lab purposes
 }
 
 variable "disk_size" {

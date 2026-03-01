@@ -40,6 +40,34 @@ variable "cluster_version" {
   default     = "1.29"
 }
 
+# --- Nodegroup Specific Variables ---
+variable "instance_types" {
+  description = "EC2 instance types for the nodes"
+  type        = list(string)
+  default     = ["t3.small"]
+}
+
+variable "desired_size" {
+  type    = number
+  default = 1
+}
+
+variable "min_size" {
+  type    = number
+  default = 1
+}
+
+variable "max_size" {
+  type    = number
+  default = 2
+}
+
+variable "disk_size" {
+  description = "Disk size in GiB"
+  type        = number
+  default     = 20
+}
+
 variable "tags" {
   description = "Additional custom tags"
   type        = map(string)
