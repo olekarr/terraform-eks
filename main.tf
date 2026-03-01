@@ -1,4 +1,4 @@
-# Creates the shared VPC networking layer used by the EKS cluster and nodegroups
+# 1. Networking Layer
 module "vpc" {
   source = "./modules/vpc"
 
@@ -11,7 +11,7 @@ module "vpc" {
   tags                 = local.common_tags
 }
 
-# Creates the EKS control plane and OIDC provider (IRSA baseline)
+# 2. EKS Control Plane
 module "eks" {
   source = "./modules/eks"
 
@@ -22,14 +22,22 @@ module "eks" {
   tags            = local.common_tags
 }
 
-# Creates the managed worker node group(s) attached to the EKS cluster
+# 3. Managed Worker Nodes
 module "nodegroups" {
   source = "./modules/nodegroups"
 
-  name         = local.name_prefix
-  cluster_name = module.eks.cluster_name
-  subnet_ids   = local.node_subnet_ids
-  tags         = local.common_tags
+  name           = local.name_prefix
+  cluster_name   = module.eks.cluster_name
+  # Uses logic from locals.tf to decide between public or private subnets
+  subnet_ids     = local.node_subnet_ids
+  tags           = local.common_tags
+
+  # Passing explicit values to fix the "Free Tier" error
+  instance_types = var.instance_types
+  desired_size   = var.desired_size
+  min_size       = var.min_size
+  max_size       = var.max_size
+  disk_size      = var.disk_size
 
   depends_on = [module.eks]
 }

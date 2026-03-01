@@ -18,13 +18,13 @@ resource "aws_iam_role" "node" {
   tags               = var.tags
 }
 
-# Grants worker nodes permissions required to join the cluster and function as nodes
+# Grants worker nodes permissions required to join the cluster
 resource "aws_iam_role_policy_attachment" "worker_node_policy" {
   role       = aws_iam_role.node.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
 
-# Grants worker nodes permissions required by the VPC CNI plugin for pod networking
+# Grants worker nodes permissions required by the VPC CNI plugin
 resource "aws_iam_role_policy_attachment" "cni_policy" {
   role       = aws_iam_role.node.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
@@ -36,14 +36,17 @@ resource "aws_iam_role_policy_attachment" "container_registry" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
-# Creates a managed EKS node group with the requested instance type and scaling settings
+# Creates a managed EKS node group
 resource "aws_eks_node_group" "this" {
   cluster_name    = var.cluster_name
   node_group_name = "${var.name}-nodegroup"
   node_role_arn   = aws_iam_role.node.arn
   subnet_ids      = var.subnet_ids
 
-  instance_types = var.instance_types
+  # Explicitly set these to avoid "Free Tier" validation conflicts
+  ami_type       = "AL2_x86_64"     # Amazon Linux 2 (Standard for EKS)
+  capacity_type  = "ON_DEMAND"      # Forces On-Demand billing
+  instance_types = var.instance_types # Should be ["t3.small"] in variables.tf
   disk_size      = var.disk_size
 
   scaling_config {
@@ -54,6 +57,7 @@ resource "aws_eks_node_group" "this" {
 
   tags = var.tags
 
+  # Critical: Ensure IAM is fully propagated before node creation starts
   depends_on = [
     aws_iam_role_policy_attachment.worker_node_policy,
     aws_iam_role_policy_attachment.cni_policy,
