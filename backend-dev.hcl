@@ -1,6 +1,6 @@
 # Stores Terraform state in S3 with DynamoDB locking for safe concurrent runs
-bucket         = "tfstate-ravi-eks-ap-south1"
+bucket         = "project-terraform-eks-tfstate"
 key            = "eks/dev/terraform.tfstate"
 region         = "ap-south-1"
-dynamodb_table = "terraform-locks"
+dynamodb_table = "eks-state-lock"
 encrypt        = true
