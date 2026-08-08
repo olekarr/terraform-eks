@@ -1,4 +1,4 @@
-name: Install Terraform (example)
+name: Terraform Operations
 
 on:
   push:
@@ -8,8 +8,12 @@ on:
 jobs:
   setup-terraform:
     runs-on: ubuntu-latest
+
     steps:
       - name: Use local install action
-        uses: .github\actions\install
+        uses: ./.github/actions/install
         with:
           terraform_version: '1.5.7'
+
+      - name: Check Terraform
+        run: terraform --version
