@@ -1,0 +1,28 @@
+name: Install Terraform
+description: Install Terraform using Linux commands
+
+inputs:
+  terraform_version:
+    description: Terraform version to install
+    required: false
+    default: "1.9.8"
+
+runs:
+  using: composite
+
+  steps:
+    - name: Install Terraform
+      shell: bash
+      run: |
+        echo "Installing Terraform version ${{ inputs.terraform_version }}"
+
+        sudo apt-get update -y
+        sudo apt-get install -y wget unzip
+
+        wget https://releases.hashicorp.com/terraform/${{ inputs.terraform_version }}/terraform_${{ inputs.terraform_version }}_linux_amd64.zip
+
+        unzip terraform_${{ inputs.terraform_version }}_linux_amd64.zip
+
+        sudo mv terraform /usr/local/bin/
+
+        terraform --version

@@ -1,0 +1,13 @@
+name: Install Terraform (example)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use local install action
+        uses: ./.github/actions/install
+        with:
+          terraform_version: '1.5.7'
