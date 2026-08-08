@@ -20,3 +20,6 @@ jobs:
 
       - name: Check Terraform
         run: terraform --version
+
+      - name: Use local terraform operations action
+        uses: ./.github/actions/terraform-operations

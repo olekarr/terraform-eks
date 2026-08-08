@@ -1,0 +1,29 @@
+name: Perform Terraform Operations
+
+description: Perform Terraform operations
+
+runs:
+  using: composite
+
+  steps:
+    - name: Terraform Init
+      shell: bash
+      run: |
+        pwd
+        cd $GITHUB_WORKSPACE
+        echo "Initializing Terraform"
+        terraform init
+
+    - name: Terraform Plan
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        echo "Planning Terraform changes"
+        terraform plan
+
+    - name: Terraform Apply
+      shell: bash
+      run: |
+        cd $GITHUB_WORKSPACE
+        echo "Applying Terraform changes"
+        terraform apply -auto-approve
