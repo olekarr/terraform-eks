@@ -1,7 +1,9 @@
 name: Install Terraform (example)
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   setup-terraform:
